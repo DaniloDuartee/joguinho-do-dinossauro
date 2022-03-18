@@ -7,6 +7,7 @@ var grupoDeCactos,grupoDeNuvens
 var estadoDoJogo = "jogando"
 var reiniciar, imagemReiniciar
 var fimDeJogo, imagemFimDeJogo
+var somPulo, somMorte, somCheckPoint
 
 function criaNuvens(){
     if(frameCount%120===0){
@@ -82,6 +83,10 @@ function preload(){
     trexMorto = loadAnimation("trex_collided.png")
     imagemFimDeJogo = loadImage("gameOver.png")
     imagemReiniciar = loadImage("restart.png")
+    somPulo = loadSound("jump.mp3")
+    somCheckPoint = loadSound("checkPoint.mp3")
+    somMorte = loadSound("die.mp3")
+
 }
 
 function setup() {
@@ -122,24 +127,29 @@ function draw() {
     if(estadoDoJogo === "jogando"){
         pontos = pontos +Math.round(frameRate()/60)
 
-    if (keyDown('space') && trex.y >= 80) {
-        trex.velocityY = -15
-    }
+        if(pontos % 100 === 0){
+            somCheckPoint.play()
+        }
 
-    chao.velocityX = -(6 + pontos /100)
-    
-    if(chao.x <0){
-        chao.x = chao.width/2
-    }
+        if (keyDown('space') && trex.y >= 80) {
+            trex.velocityY = -15
+            somPulo.play()
+        }
 
-    criaNuvens()
+        chao.velocityX = -(6 + pontos /100)
+        
+        if(chao.x <0){
+            chao.x = chao.width/2
+        }
 
-    criaCacto()
+        criaNuvens()
 
-    if(trex.isTouching(grupoDeCactos)){
-        estadoDoJogo = "final"
-    }
+        criaCacto()
 
+        if(trex.isTouching(grupoDeCactos)){
+            estadoDoJogo = "final"
+            somMorte.play()
+        }
    } else if(estadoDoJogo === "final"){
         chao.velocityX = 0
 
@@ -156,9 +166,7 @@ function draw() {
        
         if(mousePressedOver(reiniciar)){
           recomecar()
-
         }
-
    } 
 
     drawSprites()
