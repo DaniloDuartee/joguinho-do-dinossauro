@@ -8,15 +8,17 @@ var estadoDoJogo = "jogando"
 var reiniciar, imagemReiniciar
 var fimDeJogo, imagemFimDeJogo
 var somPulo, somMorte, somCheckPoint
+var estaNoAr = false
+var larguraTela = window.innerWidth - 20
 
 function criaNuvens(){
     if(frameCount%120===0){
-        nuvem = createSprite(620,30,50,30)
-        nuvem.velocityX = -2 
+        nuvem = createSprite(larguraTela + 20,30,50,30)
+        nuvem.velocityX = -5 
         nuvem.y = Math.round( random (10,100))
         nuvem.addImage(imagemNuvem)
         nuvem.scale = 0.7
-        nuvem.lifetime = 600
+        nuvem.lifetime = larguraTela
         trex.depth = nuvem.depth
         trex.depth = trex.depth +1
         grupoDeNuvens.add(nuvem)
@@ -25,10 +27,10 @@ function criaNuvens(){
 
 function criaCacto(){
     if(frameCount%150===0){
-        cacto = createSprite(580,170,20,50)
-        cacto.velocityX = -(6 + pontos /100)
+        cacto = createSprite(larguraTela + 20 ,170,20,50)
+        cacto.velocityX = -(7 + pontos /100)
         cacto.scale = 0.7
-        cacto.lifetime = 600
+        cacto.lifetime = larguraTela
 
         var tipoCacto = Math.round(random(1,6))
         switch (tipoCacto) {
@@ -72,7 +74,7 @@ function recomecar (){
 // serve para precarregar imagens/animacoes/sons
 function preload(){
     trexCorrendo = loadAnimation('trex1.png', 'trex2.png', 'trex3.png')
-    imagemChao = loadImage("ground2.png")
+    imagemChao = loadAnimation("ground2.png","ground2.png")
     imagemNuvem = loadImage("cloud.png")
     imagemCacto1 = loadImage("obstacle1.png")
     imagemCacto2 = loadImage("obstacle2.png")
@@ -90,7 +92,7 @@ function preload(){
 }
 
 function setup() {
-    createCanvas(600, 200)
+    createCanvas(larguraTela, 200)
 
     trex = createSprite(50, 120)
     trex.addAnimation('correndo', trexCorrendo)
@@ -98,7 +100,8 @@ function setup() {
     trex.scale = 0.7
 
     chao = createSprite(300,190)
-    chao.addImage(imagemChao)
+    chao.addAnimation("chao",imagemChao)
+    console.log(chao.width)
     chao.x = chao.width/2
     chaoInvisivel = createSprite(300,205,600,10)
     chaoInvisivel.visible = false
@@ -106,11 +109,11 @@ function setup() {
     grupoDeCactos = new Group()
     grupoDeNuvens = new Group()
 
-    reiniciar = createSprite(300,100)
+    reiniciar = createSprite(larguraTela /2,120)
     reiniciar.addImage(imagemReiniciar)
-    reiniciar.scale = 0.7
+    reiniciar.scale = 01
     reiniciar.visible = false
-    fimDeJogo = createSprite(300,50)
+    fimDeJogo = createSprite(larguraTela /2,50)
     fimDeJogo.addImage(imagemFimDeJogo)
     fimDeJogo.visible = false
 }
@@ -118,9 +121,9 @@ function setup() {
 function draw() {
     background('white')
 
-    text("Pontos: " + pontos,520,15)
+    text("Pontos: " + pontos,larguraTela -90,15)
 
-    trex.velocityY = trex.velocityY + 2
+    trex.velocityY = trex.velocityY + 0.5
 
     trex.collide(chaoInvisivel)
     
@@ -131,14 +134,19 @@ function draw() {
             somCheckPoint.play()
         }
 
-        if (keyDown('space') && trex.y >= 80) {
-            trex.velocityY = -15
+        if ((keyDown('space') || touches.length >0) && trex.y >= 70 && estaNoAr == false) {
+            trex.velocityY = -10
             somPulo.play()
+            estaNoAr = true
+            touches = []
+        } else if(estaNoAr && trex.y >= 120) {
+            estaNoAr = false
         }
+       
 
-        chao.velocityX = -(6 + pontos /100)
+        chao.velocityX = -(7 + pontos /100)
         
-        if(chao.x <0){
+        if(chao.x <larguraTela /2){
             chao.x = chao.width/2
         }
 
@@ -164,8 +172,9 @@ function draw() {
         reiniciar.visible = true
         fimDeJogo.visible = true
        
-        if(mousePressedOver(reiniciar)){
+        if(mousePressedOver(reiniciar) || touches.length >0){
           recomecar()
+          touches = []
         }
    } 
 
